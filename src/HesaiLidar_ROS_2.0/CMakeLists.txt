@@ -92,6 +92,8 @@ if($ENV{ROS_VERSION} MATCHES "1")
     roslib
     crane_msg)
 
+  include_directories(${catkin_INCLUDE_DIRS})
+
   add_message_files(
     FILES
     "UdpPacket.msg"

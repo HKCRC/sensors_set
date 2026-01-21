@@ -105,7 +105,7 @@ if(roscpp_FOUND)
 
   find_package(roslib QUIET)
   include_directories(${roscpp_INCLUDE_DIRS} ${roslib_INCLUDE_DIRS})
-  set(ROS_LIBS ${roscpp_LIBRARIES} ${roslib_LIBRARIES})
+  set(ROS_LIBS ${roscpp_LIBRARIES} ${roslib_LIBRARIES} ${catkin_LIBRARIES})
 
   add_definitions(-DRUN_IN_ROS_WORKSPACE)
 
