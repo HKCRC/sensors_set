@@ -1,0 +1,8 @@
+udp_2_imu:
+  local_ip: "0.0.0.0"
+  local_port: 9000
+  recv_buffer_size: 2048
+  imu_topic: "imu/data_raw"
+  frame_id: "imu_link"
+  select_timeout_ms: 100
+  sim_rate_hz: 50.0

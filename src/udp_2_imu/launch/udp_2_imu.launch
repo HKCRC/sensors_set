@@ -1,0 +1,4 @@
+<launch>
+  <rosparam file="$(find udp_2_imu)/config/config.yaml" command="load" />
+  <node pkg="udp_2_imu" type="udp_2_imu_node" name="udp_2_imu" output="screen" />
+</launch>
