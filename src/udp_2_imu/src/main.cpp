@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <cmath>
 #include <cstring>
 #include <string>
 #include <vector>
@@ -62,13 +63,15 @@ bool parseImuPacket(const uint8_t *data, size_t length, sensor_msgs::Imu &imu_ms
 
   imu_msg.header.seq = seq;
   imu_msg.header.stamp = ros::Time(sec, nsec);
-  // TODO: 如果有量纲/比例系数，请在此处转换为 m/s^2 和 rad/s
-  imu_msg.linear_acceleration.x = static_cast<double>(ax);
-  imu_msg.linear_acceleration.y = static_cast<double>(ay);
-  imu_msg.linear_acceleration.z = static_cast<double>(az);
-  imu_msg.angular_velocity.x = static_cast<double>(gx);
-  imu_msg.angular_velocity.y = static_cast<double>(gy);
-  imu_msg.angular_velocity.z = static_cast<double>(gz);
+  constexpr double kAccelScale = (16.0 * 9.8) / 32768.0;          // m/s^2 per LSB
+  constexpr double kGyroScaleDeg = (16.0 * 2000.0) / 32768.0;      // deg/s per LSB
+  constexpr double kDegToRad = M_PI / 180.0;                       // rad/deg
+  imu_msg.linear_acceleration.x = static_cast<double>(ax) * kAccelScale;
+  imu_msg.linear_acceleration.y = static_cast<double>(ay) * kAccelScale;
+  imu_msg.linear_acceleration.z = static_cast<double>(az) * kAccelScale;
+  imu_msg.angular_velocity.x = static_cast<double>(gx) * kGyroScaleDeg * kDegToRad;
+  imu_msg.angular_velocity.y = static_cast<double>(gy) * kGyroScaleDeg * kDegToRad;
+  imu_msg.angular_velocity.z = static_cast<double>(gz) * kGyroScaleDeg * kDegToRad;
 
   return true;
 }
