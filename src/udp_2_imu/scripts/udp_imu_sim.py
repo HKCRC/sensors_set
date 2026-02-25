@@ -11,13 +11,14 @@ except Exception:
     yaml = None
 
 
-def build_packet(ax, ay, az, gx, gy, gz):
+def build_packet(seq, ax, ay, az, gx, gy, gz):
     now = time.time()
     sec = int(now)
     nsec = int((now - sec) * 1e9)
-    # Packet: sec(u32 BE), nsec(u32 BE), accel(int16 BE) x3, gyro(int16 BE) x3
+    # Packet: seq(u32 BE), sec(u32 BE), nsec(u32 BE), accel(int16 BE) x3, gyro(int16 BE) x3
     return struct.pack(
-        ">IIhhhhhh",
+        ">IIIhhhhhh",
+        int(seq) & 0xFFFFFFFF,
         sec,
         nsec,
         int(ax),
@@ -84,10 +85,12 @@ def main():
     rate_hz = args.rate if args.rate is not None else (config_rate or 50.0)
     period = 1.0 / rate_hz if rate_hz > 0 else 0.02
 
+    seq = 0
     try:
         while True:
-            pkt = build_packet(args.ax, args.ay, args.az, args.gx, args.gy, args.gz)
+            pkt = build_packet(seq, args.ax, args.ay, args.az, args.gx, args.gy, args.gz)
             sock.sendto(pkt, target)
+            seq = (seq + 1) & 0xFFFFFFFF
             time.sleep(period)
     except KeyboardInterrupt:
         pass

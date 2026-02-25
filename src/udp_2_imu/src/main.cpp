@@ -14,7 +14,7 @@
 namespace {
 
 bool parseImuPacket(const uint8_t *data, size_t length, sensor_msgs::Imu &imu_msg) {
-  constexpr size_t kPacketSize = 20;  // sec(4) + nsec(4) + accel(6) + gyro(6)
+  constexpr size_t kPacketSize = 24;  // seq(4) + sec(4) + nsec(4) + accel(6) + gyro(6)
   if (length < kPacketSize) {
     return false;
   }
@@ -33,8 +33,10 @@ bool parseImuPacket(const uint8_t *data, size_t length, sensor_msgs::Imu &imu_ms
     out = ntohs(be);
   };
 
+  uint32_t seq = 0;
   uint32_t sec = 0;
   uint32_t nsec = 0;
+  read_u32_be(seq);
   read_u32_be(sec);
   read_u32_be(nsec);
 
@@ -58,6 +60,7 @@ bool parseImuPacket(const uint8_t *data, size_t length, sensor_msgs::Imu &imu_ms
   const int16_t gy = static_cast<int16_t>(gy_u);
   const int16_t gz = static_cast<int16_t>(gz_u);
 
+  imu_msg.header.seq = seq;
   imu_msg.header.stamp = ros::Time(sec, nsec);
   // TODO: 如果有量纲/比例系数，请在此处转换为 m/s^2 和 rad/s
   imu_msg.linear_acceleration.x = static_cast<double>(ax);
